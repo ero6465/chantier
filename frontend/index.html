@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chantier Planning Tool</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+    <script src="config.js"></script>
+    <script type="importmap">
+    {
+        "imports": {
+            "settings.js": "./settings.js",
+            "clock.js": "./clock.js",
+            "pdf-handler.js": "./pdf-handler.js"
+        }
+    }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Planification des Chantiers</h1>
+            <div style="display: flex; align-items: center; gap: 1rem;">
+                <a href="worker-management.html" class="btn primary" style="display: inline-block; text-decoration: none; height: 38px; line-height: 38px; padding: 0 16px; font-size: 1rem;">
+                    <i class="fas fa-users"></i> Manage Employees
+                </a>
+                <div class="clock-container">
+                    <div id="clock" class="clock">00:00:00</div>
+                    <div id="time-left" class="time-left">Chargement...</div>
+                </div>
+            </div>
+            <div class="view-toggle">
+                <button id="settings-btn" title="Paramètres">
+                    <i class="fas fa-cog"></i>
+                </button>
+            </div>
+        </header>
+
+        <div id="calendar-view" class="view-section active">
+            <div class="calendar-controls">
+                <button id="prev-month" title="Mois Précédent"><i class="fas fa-chevron-left"></i></button>
+                <h2 id="current-month">Chargement...</h2>
+                <button id="next-month" title="Mois Suivant"><i class="fas fa-chevron-right"></i></button>
+            </div>
+            <div class="calendar-grid">
+                <div class="calendar-header">
+                    <div>Lundi</div>
+                    <div>Mardi</div>
+                    <div>Mercredi</div>
+                    <div>Jeudi</div>
+                    <div>Vendredi</div>
+                    <div>Samedi</div>
+                    <div>Dimanche</div>
+                </div>
+                <div id="calendar-days" class="calendar-days"></div>
+            </div>
+            <button id="add-chantier-btn" class="floating-btn" title="Ajouter un nouveau chantier à la date sélectionnée">
+                <i class="fas fa-plus"></i>
+            </button>
+        </div>
+
+        <div id="arrow-indicator" class="arrow-indicator" title="Afficher/Masquer la liste (Raccourci: N)">❮</div>
+
+        <div id="list-view" class="view-section">
+            <div class="list-header">
+                <h2>Liste des Chantiers</h2>
+                <div class="list-actions">
+                    <button id="add-list-chantier-btn" class="btn primary" title="Ajouter un nouveau chantier">
+                        <i class="fas fa-plus"></i>
+                    </button>
+                    <div class="view-type-toggle">
+                        <button id="list-view-type-btn" class="active" title="Vue Liste">
+                            <i class="fas fa-list"></i>
+                        </button>
+                        <button id="grid-view-type-btn" title="Vue Grille">
+                            <i class="fas fa-th"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="list-controls">
+                <select id="filter-status">
+                    <option value="all">Tous les Chantiers</option>
+                    <option value="ongoing">En cours</option>
+                    <option value="completed">Facture envoyée</option>
+                </select>
+                <input type="text" id="search-chantier" placeholder="Rechercher des chantiers...">
+            </div>
+            <button id="show-past-chantiers" class="show-past-btn">Afficher les Chantiers Passés</button>
+            <div id="chantier-list" class="chantier-list list-view-container"></div>
+        </div>
+    </div>
+
+    <!-- Chantier Modal -->
+    <div id="chantier-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2 id="modal-title">Ajouter un Nouveau Chantier</h2>
+            
+            <div class="form-tabs">
+                <div class="form-tab active" data-panel="chantier-details">Détails</div>
+                <div class="form-tab" data-panel="chantier-assignees">Assignés</div>
+                <div class="form-tab" data-panel="chantier-devis">Devis/Facture</div>
+                <div class="form-tab" data-panel="chantier-photos">Photos</div>
+            </div>
+            
+            <form id="chantier-form">
+                <div id="chantier-details" class="form-panel active">
+                    <div class="form-group">
+                        <label for="chantier-title">Titre</label>
+                        <input type="text" id="chantier-title" name="title" required autocomplete="on">
+                    </div>
+                    <div class="form-group">
+                        <label for="chantier-description">Description</label>
+                        <textarea id="chantier-description" name="description" autocomplete="on"></textarea>
+                    </div>
+                    <div class="form-group half-width">
+                        <label for="chantier-start-date">Date de début</label>
+                        <input type="date" id="chantier-start-date" name="startDate" required autocomplete="off">
+                    </div>
+                    <div class="form-group half-width">
+                        <label for="chantier-end-date">Date de fin</label>
+                        <input type="date" id="chantier-end-date" name="endDate" required autocomplete="off">
+                    </div>
+                    <div class="form-group half-width">
+                        <label for="chantier-estimated-duration">Durée estimée (jours)</label>
+                        <input type="number" id="chantier-estimated-duration" name="estimatedDuration" autocomplete="off">
+                    </div>
+                    <div class="form-group half-width">
+                        <label for="chantier-status">Status</label>
+                        <select id="chantier-status" name="status" autocomplete="off">
+                            <option value="ongoing">En cours</option>
+                            <option value="completed">Facture envoyé</option>
+                        </select>
+                    </div>
+                    <div class="form-group half-width">
+                        <label for="chantier-urgency">Urgence</label>
+                        <select id="chantier-urgency" name="urgency" autocomplete="off">
+                            <option value="low">Faible</option>
+                            <option value="medium">Moyenne</option>
+                            <option value="high">Haute</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="chantier-address">Adresse</label>
+                        <input type="text" id="chantier-address" name="address" autocomplete="address-line1">
+                    </div>
+                    <div class="form-group">
+                        <label for="chantier-contact-phone">Contact Téléphone</label>
+                        <input type="tel" id="chantier-contact-phone" name="contactPhone" autocomplete="tel">
+                    </div>
+                    <div class="form-group">
+                        <label for="chantier-contact-email">Contact Email</label>
+                        <input type="email" id="chantier-contact-email" name="contactEmail" autocomplete="email">
+                    </div>
+                    <div class="form-group">
+                        <label for="parent-chantier">Chantier Parent</label>
+                        <select id="parent-chantier" name="parentChantierId" autocomplete="off" title="Sélectionner un parent chargera ses informations (Adresse, Téléphone, Email)">
+                            <option value="">None</option>
+                            <!-- Options populated by JS -->
+                        </select>
+                    </div>
+                </div>
+                
+                <div id="chantier-assignees" class="form-panel">
+                    <div class="form-group">
+                        <label id="assignees-label">Assignés</label>
+                        <div class="checkbox-group" id="assignee-checkboxes" role="group" aria-labelledby="assignees-label">
+                            <!-- Filled dynamically -->
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="chantier-devis" class="form-panel">
+                    <div class="form-group">
+                        <label for="chantier-devis-notes">Notes Devis/Facture</label>
+                        <textarea id="chantier-devis-notes" name="devis" rows="4" autocomplete="off"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <button type="button" class="btn" id="create-facture">Ouvrir l'éditeur de Devis/Facture</button>
+                    </div>
+                    <div class="form-group">
+                        <button type="button" class="btn" id="send-gmail-btn">Envoyer par Email (Gmail)</button>
+                    </div>
+                </div>
+                
+                <div id="chantier-photos" class="form-panel">
+                    <div class="form-group">
+                        <label for="chantier-images">Upload Images</label>
+                        <input type="file" id="chantier-images" multiple accept="image/*">
+                        <div id="image-preview" class="image-preview"></div>
+                    </div>
+                    <div class="drawing-controls" style="display: none;">
+                        <button type="button" id="drawing-color-btn" class="btn">Color</button>
+                        <button type="button" id="drawing-size-btn" class="btn">Size</button>
+                        <button type="button" id="drawing-clear-btn" class="btn">Clear</button>
+                        <button type="button" id="drawing-save-btn" class="btn primary">Save</button>
+                        <button type="button" id="drawing-cancel-btn" class="btn">Cancel</button>
+                    </div>
+                    <canvas id="drawing-canvas" style="display: none;"></canvas>
+                    <div class="form-group" id="image-comment-container" style="display: none;">
+                        <label for="image-comment">Commentaire Image</label>
+                        <textarea id="image-comment" rows="2"></textarea>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn primary" title="Enregistrer les modifications ou créer un nouveau chantier">Save Chantier</button>
+                    <button type="button" class="btn danger" id="delete-chantier" title="Supprimer ce chantier (irréversible)">Delete</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Settings Modal -->
+    <div id="settings-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" id="close-settings" title="Fermer les paramètres">&times;</span>
+            <h2>Paramètres</h2>
+            
+            <div class="settings-section">
+                <h3>Assignee Pictures</h3>
+                <div id="assignee-images-container"></div>
+            </div>
+            
+            <div class="settings-section">
+                <h3>Working Hours</h3>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="work-start-time">Start Time</label>
+                        <input type="time" id="work-start-time" autocomplete="off">
+                    </div>
+                    <div class="form-group">
+                        <label for="work-end-time">End Time</label>
+                        <input type="time" id="work-end-time" autocomplete="off">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label id="working-days-label">Working Days</label>
+                    <div class="workday-settings" role="group" aria-labelledby="working-days-label">
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="workday-0" value="0" class="workday-checkbox">
+                            <label for="workday-0">Sunday</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="workday-1" value="1" class="workday-checkbox">
+                            <label for="workday-1">Monday</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="workday-2" value="2" class="workday-checkbox">
+                            <label for="workday-2">Tuesday</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="workday-3" value="3" class="workday-checkbox">
+                            <label for="workday-3">Wednesday</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="workday-4" value="4" class="workday-checkbox">
+                            <label for="workday-4">Thursday</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="workday-5" value="5" class="workday-checkbox">
+                            <label for="workday-5">Friday</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="workday-6" value="6" class="workday-checkbox">
+                            <label for="workday-6">Saturday</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="settings-section">
+                <h3>Media Management</h3>
+                <div class="form-group">
+                    <button type="button" id="clear-media-btn" class="btn danger">Clear All PDFs and Images</button>
+                    <p class="help-text">This will remove all PDFs and images from all chantiers. This action cannot be undone.</p>
+                </div>
+            </div>
+            
+            <div class="form-actions">
+                <button type="button" id="save-settings" class="btn primary" title="Enregistrer les paramètres et fermer">Save Settings</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add sync status element -->
+    <div id="sync-status" class="sync-status"></div>
+    
+    <!-- Scripts -->
+    <script type="module" src="app.js"></script>
+    <script type="module" src="ui-controller.js"></script>
+    <script type="module" src="settings.js"></script>
+    <script type="module" src="clock.js"></script>
+    <script type="module" src="image-handler.js"></script>
+    <script type="module" src="pdf-handler.js"></script>
+</body>
+</html>

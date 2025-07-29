@@ -1,0 +1,236 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+    color: #333;
+    background: #f8f8f8;
+}
+
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    background: #fff;
+    padding: 20px;
+    box-shadow: 0 0 5px rgba(0,0,0,0.1);
+}
+
+h1 {
+    margin-top: 0;
+    text-align: center;
+    font-size: 24px;
+}
+
+label {
+    display: block;
+    margin-top: 10px;
+    font-weight: bold;
+}
+
+input,
+textarea,
+select {
+    width: calc(100% - 10px);
+    padding: 8px;
+    margin-top: 5px;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+}
+
+table {
+    width: 100%;
+    margin-top: 20px;
+    border-collapse: collapse;
+    background: #fff;
+}
+
+th,
+td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    vertical-align: top;
+}
+
+th {
+    background-color: #f2f2f2;
+    text-align: left;
+    font-weight: bold;
+}
+
+.price-input {
+    width: 100px;
+}
+
+.actions {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+}
+
+.delete-line,
+.add-line {
+    cursor: pointer;
+    color: red;
+    text-decoration: underline;
+}
+
+.dropdown {
+    position: absolute;
+    background: white;
+    border: 1px solid #ddd;
+    max-height: 150px;
+    overflow-y: auto;
+    width: calc(100% - 10px);
+    z-index: 1000;
+    display: none;
+}
+
+.dropdown-item {
+    padding: 8px;
+    cursor: pointer;
+}
+
+.dropdown-item:hover {
+    background-color: #f2f2f2;
+}
+
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.overlay textarea {
+    width: 80%;
+    height: 200px;
+    border: none;
+    border-radius: 5px;
+    padding: 10px;
+}
+
+.overlay button {
+    padding: 10px 20px;
+    margin-top: 10px;
+    background: #555;
+    color: #fff;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+}
+
+.overlay button:hover {
+    background: #333;
+}
+
+.error-message {
+    color: red;
+    margin-top: 10px;
+    display: none;
+}
+
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 60px;
+    height: 34px;
+    vertical-align: middle;
+    margin-left: 10px;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-color: #ccc;
+    transition: .4s;
+    border-radius: 34px;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 26px; width: 26px;
+    left: 4px; bottom: 4px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+}
+
+input:checked + .slider {
+    background-color: #2196F3; 
+}
+
+input:checked + .slider:before {
+    transform: translateX(26px);
+}
+
+.cache-section {
+    margin-top: 40px;
+}
+
+.cache-list .cached-invoice {
+    border: 1px solid #ddd;
+    padding: 10px;
+    margin-bottom: 10px;
+}
+
+.cache-list .cached-invoice .invoice-preview strong {
+    display: block;
+    margin-bottom: 5px;
+}
+
+.cache-list .cached-invoice .invoice-actions button {
+    margin-right: 10px;
+    background: #2196F3;
+    color: #fff;
+    border: none;
+    padding: 5px 10px;
+    cursor: pointer;
+    border-radius: 3px;
+}
+
+.cache-list .cached-invoice .invoice-actions button:hover {
+    background: #1f78d1;
+}
+
+button {
+    background: #4CAF50;
+    color: #fff;
+    border: none;
+    padding: 10px 15px;
+    cursor: pointer;
+    border-radius: 3px;
+    margin-top: 10px;
+}
+
+button:hover {
+    background: #45a049;
+}
+
+.description-input {
+    position: relative;
+}
+
+.description-input .dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+}
+
+footer-note {
+    text-align: center;
+    font-size: 14px;
+    color: #666;
+}
