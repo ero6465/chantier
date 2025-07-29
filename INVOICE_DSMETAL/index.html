@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Facture/Devis Generator</title>
+    <link rel="stylesheet" href="style.css">
+
+    <!-- Load print.js first (defines createPrintHTML) -->
+    <script src="print.js"></script>
+    <!-- Load data.js next (defines config, products, clients) -->
+    <script src="data.js"></script>
+    <!-- Finally, load app.js (uses createPrintHTML and config) -->
+    <script src="app.js"></script>
+</head>
+
+<body>
+    <div class="container">
+        <h1 id="mainTitle">Devis Generator</h1>
+
+        <label for="toggleSwitch">Type: <span id="invoiceTypeLabel">Devis</span></label>
+        <label class="switch">
+            <input type="checkbox" id="toggleSwitch" name="toggleInvoiceType">
+            <span class="slider round"></span>
+        </label>
+
+        <label for="title">Titre</label>
+        <input type="text" id="title" name="title">
+
+        <label for="invoiceNumber">Numero de <span id="numberTypeLabel">devis</span></label>
+        <input type="text" id="invoiceNumber" name="invoiceNumber">
+
+        <label for="date">Date</label>
+        <input type="text" id="date" name="date">
+
+        <label for="validityDate">Date de Validité</label>
+        <input type="text" id="validityDate" name="validityDate">
+
+        <label for="customerName">Nom du Client</label>
+        <div class="description-input">
+            <input type="text" id="customerName" name="customerName" placeholder="Nom du client">
+            <div class="dropdown" id="customerDropdown"></div>
+        </div>
+
+        <label for="customerAddress">Adresse du Client</label>
+        <input type="text" id="customerAddress" name="customerAddress" placeholder="Adresse du client">
+
+        <label for="customerSiren">Siren du Client</label>
+        <input type="text" id="customerSiren" name="customerSiren" placeholder="Siren du Client">
+
+        <label for="customerTva">N° TVA intra.</label>
+        <input type="text" id="customerTva" name="customerTva" placeholder="N° TVA intra.">
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Description</th>
+                    <th>Prix HT€</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="invoiceTable" name="invoiceTable">
+                <!-- Rows added dynamically via app.js -->
+            </tbody>
+        </table>
+
+        <label for="tva">TVA (%)</label>
+        <input type="number" id="tva" name="tva" value="20" min="0" max="100" step="1">
+
+        <label for="remise">Remise (en pourcentage)</label>
+        <input type="text" id="remise" name="remise" value="0" placeholder="Ex: 10 ou 10%">
+
+        <div id="acompteField" style="display: none;">
+            <label for="acompte">Acompte</label>
+            <input type="number" id="acompte" name="acompte" value="0">
+        </div>
+
+        <div id="resteDuField" style="display: none;">
+            <label for="resteDu">Reste dû</label>
+            <input type="number" id="resteDu" name="resteDu" value="0" readonly>
+        </div>
+
+        <!-- Print button also saves and updates cache -->
+        <button id="printButton" disabled>Imprimer (et Sauvegarder)</button>
+        <div class="error-message" id="errorMessage"></div>
+
+        <div class="cache-section">
+            <h2>Gestion de Cache</h2>
+
+            <label for="cacheSearch">Rechercher par Titre:</label>
+            <input type="text" id="cacheSearch" name="cacheSearch" placeholder="Entrer le titre à rechercher">
+
+            <div class="cache-list" id="cacheContainer">
+                <!-- Cached invoices displayed here -->
+                <!-- Each invoice shows:
+                     Facture - Titre (vX)
+                     Clicking on (vX) toggles a versions-dropdown with date buttons
+                     Delete button removes all versions
+                -->
+            </div>
+
+            <button id="clearCacheButton">Supprimer Tout le Cache</button>
+<button onclick="openCacheManagementWindow()">Ouvrir la Gestion du Cache</button>
+        </div>
+    </div>
+
+    <div class="overlay" id="descriptionOverlay">
+        <div>
+            <textarea id="overlayDescription" name="overlayDescription"></textarea>
+            <button id="closeOverlayButton">Fermer</button>
+        </div>
+    </div>
+</body>
+</html>

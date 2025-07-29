@@ -1,0 +1,5 @@
+Flask==2.0.1
+Flask-CORS==3.0.10
+Werkzeug==2.0.3
+pymongo[srv]==4.8.0
+waitress

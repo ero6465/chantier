@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Initialisation...</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+            color: #333;
+        }
+        .message {
+            text-align: center;
+        }
+        .spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border-left-color: #4a6da7; /* Same as --primary-color */
+            animation: spin 1s ease infinite;
+            margin: 20px auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="message">
+        <h1>Initialisation du serveur...</h1>
+        <div class="spinner"></div>
+        <p>Veuillez patienter. Vous serez redirigé automatiquement.</p>
+    </div>
+
+    <script>
+        const targetUrl = 'http://127.0.0.1:5000/'; // URL of the main application
+        const checkInterval = 500; // Check every 500ms
+        const timeoutDuration = 20000; // Timeout after 10 seconds
+
+        let checkTimer = null;
+        let timeoutTimer = null;
+
+        const messageDiv = document.querySelector('.message');
+        const heading = messageDiv.querySelector('h1');
+        const paragraph = messageDiv.querySelector('p');
+        const spinner = messageDiv.querySelector('.spinner');
+
+        function redirect() {
+            console.log('Redirecting to:', targetUrl);
+            window.location.href = targetUrl;
+        }
+
+        function showTimeoutMessage() {
+            console.log('Timeout reached. Showing error message.');
+            clearInterval(checkTimer); // Stop checking
+            if (spinner) spinner.style.display = 'none'; // Hide spinner
+            if (heading) heading.textContent = 'Le serveur ne répond pas';
+            if (paragraph) paragraph.textContent = 'Le serveur met plus de temps que prévu pour répondre. Veuillez vérifier votre connexion Internet et vous assurer que le processus serveur (start.bat) fonctionne sans erreur. Vous pouvez essayer de vous connecter manuellement.';
+            
+            // Optional: Add a manual redirect button
+            const retryButton = document.createElement('button');
+            retryButton.textContent = 'Essayer de se connecter quand même';
+            retryButton.onclick = redirect; // Reuse the redirect function
+            retryButton.style.marginTop = '15px';
+            messageDiv.appendChild(retryButton);
+        }
+
+        function checkServerStatus() {
+            console.log('Checking server status...');
+            fetch(targetUrl, { method: 'HEAD', mode: 'no-cors', cache: 'no-store' })
+                .then(response => {
+                    console.log('Server check successful (port likely open).');
+                    clearInterval(checkTimer);
+                    clearTimeout(timeoutTimer);
+                    redirect();
+                })
+                .catch(error => {
+                    console.log('Server not ready yet...');
+                });
+        }
+
+        // Set a timeout to show the error message after 10 seconds
+        timeoutTimer = setTimeout(showTimeoutMessage, timeoutDuration);
+
+        // Start checking periodically
+        checkTimer = setInterval(checkServerStatus, checkInterval);
+
+        // Initial check immediately
+        checkServerStatus();
+    </script>
+</body>
+</html>
