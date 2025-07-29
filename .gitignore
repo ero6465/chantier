@@ -1,0 +1,34 @@
+# Archive files
+*.zip
+*.rar
+*.tar.gz
+*.tar.bz2
+
+# Node modules
+node_modules/
+
+# Build outputs
+dist/
+build/
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Cache files
+*.cache
+.cache/
+
+# Log files
+*.log
+logs/
+
+# Temporary files
+temp/
+tmp/
